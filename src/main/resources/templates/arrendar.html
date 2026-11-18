@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA: formulario para arrendar. Recibe: cancha (CanchaResponse) y form (ArriendoForm con sus errores). -->
+<head th:replace="~{fragments :: cabeza('Arrendar')}"></head>
+<body>
+<header th:replace="~{fragments :: menu('disponibilidad')}"></header>
+<main>
+  <h1>Arrendar <span th:text="${cancha.nombre}">Cancha</span></h1>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <!-- Resumen de lo que se va a arrendar -->
+  <section class="tarjeta">
+    <h3>
+      <span th:text="${#temporals.format(form.fecha, 'dd-MM-yyyy')}">22-11-2026</span> ·
+      <span th:text="${form.hora} + ':00 a ' + (${form.hora} + 1) + ':00'">19:00 a 20:00</span>
+    </h3>
+    <p class="meta" th:text="${cancha.deporte.etiqueta}">Fútbol</p>
+    <p class="resumen">Total: $<span th:text="${#numbers.formatInteger(cancha.tarifaHora, 1, 'POINT')}">30.000</span></p>
+  </section>
+
+  <!--
+    th:object enlaza el formulario con el objeto "form" del controller; th:field genera name, id y value
+    de cada input y recupera lo escrito si la validación falla. novalidate deja que valide el servidor.
+  -->
+  <form class="tarjeta formulario" method="post" th:action="@{/web/arrendar}" th:object="${form}" novalidate>
+    <input type="hidden" th:field="*{canchaId}">
+    <input type="hidden" th:field="*{fecha}">
+    <input type="hidden" th:field="*{hora}">
+
+    <div class="campo">
+      <label for="nombre">Nombre completo *</label>
+      <input type="text" id="nombre" th:field="*{nombre}" th:errorclass="invalido" autocomplete="name">
+      <span class="error-campo" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+    </div>
+    <div class="campo">
+      <label for="email">Email *</label>
+      <input type="email" id="email" th:field="*{email}" th:errorclass="invalido" autocomplete="email">
+      <span class="error-campo" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></span>
+    </div>
+    <div class="campo">
+      <label for="telefono">Teléfono *</label>
+      <input type="tel" id="telefono" th:field="*{telefono}" th:errorclass="invalido" autocomplete="tel">
+      <span class="error-campo" th:if="${#fields.hasErrors('telefono')}" th:errors="*{telefono}"></span>
+    </div>
+
+    <div class="acciones">
+      <button type="submit">Confirmar arriendo</button>
+      <a class="boton secundario" th:href="@{/web/disponibilidad(fecha=${form.fecha})}">Volver</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

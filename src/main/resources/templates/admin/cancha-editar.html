@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA (administración): editar una cancha. Recibe: id, deportes y form (CanchaForm). -->
+<head th:replace="~{fragments :: cabeza('Editar cancha')}"></head>
+<body>
+<header th:replace="~{fragments :: menuAdmin('canchas')}"></header>
+<main>
+  <h1>Editar cancha</h1>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <form class="tarjeta formulario" method="post" th:action="@{/web/admin/canchas/{id}/editar(id=${id})}" th:object="${form}" novalidate>
+    <div class="campo">
+      <label for="nombre">Nombre *</label>
+      <input type="text" id="nombre" th:field="*{nombre}" th:errorclass="invalido">
+      <span class="error-campo" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+    </div>
+    <div class="campo">
+      <label for="deporte">Deporte *</label>
+      <select id="deporte" th:field="*{deporte}" th:errorclass="invalido">
+        <option th:each="d : ${deportes}" th:value="${d}" th:text="${d.etiqueta}"></option>
+      </select>
+      <span class="error-campo" th:if="${#fields.hasErrors('deporte')}" th:errors="*{deporte}"></span>
+    </div>
+    <div class="campo">
+      <label for="tarifaHora">Tarifa por hora * ($5.000 – $100.000)</label>
+      <input type="number" id="tarifaHora" th:field="*{tarifaHora}" th:errorclass="invalido" min="5000" max="100000" step="500">
+      <span class="error-campo" th:if="${#fields.hasErrors('tarifaHora')}" th:errors="*{tarifaHora}"></span>
+    </div>
+    <div class="acciones">
+      <button type="submit">Guardar cambios</button>
+      <a class="boton secundario" th:href="@{/web/admin/canchas}">Volver</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

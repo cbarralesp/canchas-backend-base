@@ -1,0 +1,16 @@
+# Solo la base de datos: levántala con `docker compose up -d` y ejecuta la API con `.\mvnw.cmd spring-boot:run`
+services:
+  postgres:
+    image: postgres:18
+    container_name: canchas-base-postgres
+    environment:
+      POSTGRES_DB: canchas_db
+      POSTGRES_USER: canchas
+      POSTGRES_PASSWORD: canchas
+    ports:
+      - "5432:5432"
+    volumes:
+      - canchas-datos:/var/lib/postgresql
+
+volumes:
+  canchas-datos:

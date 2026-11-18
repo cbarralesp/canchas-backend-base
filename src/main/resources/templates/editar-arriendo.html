@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA: modificar un arriendo. Recibe: id, form (EditarArriendoForm), canchas (activas), horas y fechaMinima. -->
+<head th:replace="~{fragments :: cabeza('Modificar arriendo')}"></head>
+<body>
+<header th:replace="~{fragments :: menu('mis-arriendos')}"></header>
+<main>
+  <h1>Modificar arriendo N° <span th:text="${id}">1</span></h1>
+  <p class="sub">Cambia la cancha, la fecha o la hora. El precio se recalcula con la tarifa de la cancha elegida.</p>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <form class="tarjeta formulario" method="post" th:action="@{/web/arriendos/{id}/editar(id=${id})}" th:object="${form}" novalidate>
+    <!-- El email no se edita: viaja oculto para comprobar que el arriendo es de esta persona -->
+    <input type="hidden" th:field="*{email}">
+
+    <div class="campo">
+      <label for="canchaId">Cancha *</label>
+      <select id="canchaId" th:field="*{canchaId}" th:errorclass="invalido">
+        <option th:each="c : ${canchas}" th:value="${c.id}"
+                th:text="${c.nombre} + ' · ' + ${c.deporte.etiqueta} + ' · $' + ${#numbers.formatInteger(c.tarifaHora, 1, 'POINT')}">Cancha</option>
+      </select>
+      <span class="error-campo" th:if="${#fields.hasErrors('canchaId')}" th:errors="*{canchaId}"></span>
+    </div>
+    <div class="campo">
+      <label for="fecha">Fecha *</label>
+      <input type="date" id="fecha" th:field="*{fecha}" th:errorclass="invalido" th:min="${fechaMinima}">
+      <span class="error-campo" th:if="${#fields.hasErrors('fecha')}" th:errors="*{fecha}"></span>
+    </div>
+    <div class="campo">
+      <label for="hora">Hora de inicio *</label>
+      <select id="hora" th:field="*{hora}" th:errorclass="invalido">
+        <option th:each="h : ${horas}" th:value="${h}" th:text="${h} + ':00'">19:00</option>
+      </select>
+      <span class="error-campo" th:if="${#fields.hasErrors('hora')}" th:errors="*{hora}"></span>
+    </div>
+
+    <div class="acciones">
+      <button type="submit">Guardar cambios</button>
+      <a class="boton secundario" th:href="@{/web/mis-arriendos(email=${form.email})}">Volver</a>
+    </div>
+  </form>
+</main>
+</body>
+</html>

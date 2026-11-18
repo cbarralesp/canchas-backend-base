@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA (administración): reservas actuales. Recibe: fecha (puede ser null = todas) y arriendos. -->
+<head th:replace="~{fragments :: cabeza('Arriendos')}"></head>
+<body>
+<header th:replace="~{fragments :: menuAdmin('arriendos')}"></header>
+<main>
+  <h1>Arriendos</h1>
+  <p class="sub">Revisa las reservas del recinto y cancela las que corresponda.</p>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <form class="tarjeta filtros" method="get" th:action="@{/web/admin/arriendos}">
+    <div class="campo">
+      <label for="fecha">Filtrar por fecha</label>
+      <input type="date" id="fecha" name="fecha" th:value="${fecha}">
+    </div>
+    <button type="submit">Filtrar</button>
+    <a class="boton secundario" th:href="@{/web/admin/arriendos}">Ver todos</a>
+  </form>
+
+  <p class="aviso info" th:if="${#lists.isEmpty(arriendos)}">No hay arriendos para mostrar.</p>
+
+  <table th:unless="${#lists.isEmpty(arriendos)}">
+    <thead>
+      <tr><th>N°</th><th>Fecha</th><th>Horario</th><th>Cancha</th><th>Cliente</th><th>Contacto</th><th>Precio</th><th>Estado</th><th></th></tr>
+    </thead>
+    <tbody>
+      <tr th:each="a : ${arriendos}">
+        <td data-etiqueta="N°" th:text="${a.id}">1</td>
+        <td data-etiqueta="Fecha" th:text="${#temporals.format(a.fecha, 'dd-MM-yyyy')}">22-11-2026</td>
+        <td data-etiqueta="Horario" th:text="${a.hora} + ':00 – ' + ${a.horaFin} + ':00'">19:00 – 20:00</td>
+        <td data-etiqueta="Cancha" th:text="${a.nombreCancha}">Cancha 1</td>
+        <td data-etiqueta="Cliente" th:text="${a.nombreArrendatario}">Ana Pérez</td>
+        <td data-etiqueta="Contacto" th:text="${a.email} + ' · ' + ${a.telefono}">ana@correo.cl · +56912345678</td>
+        <td data-etiqueta="Precio" th:text="'$' + ${#numbers.formatInteger(a.precio, 1, 'POINT')}">$30.000</td>
+        <td data-etiqueta="Estado">
+          <span class="chip" th:classappend="${a.estado.name() == 'CONFIRMADO'} ? 'ok' : 'error'" th:text="${a.estado.etiqueta}">Confirmado</span>
+        </td>
+        <td class="acciones-celda">
+          <form method="post" th:action="@{/web/admin/arriendos/{id}/cancelar(id=${a.id})}" th:if="${a.estado.name() == 'CONFIRMADO'}"
+                onsubmit="return confirm('¿Cancelar este arriendo?')">
+            <input type="hidden" name="fecha" th:value="${fecha}">
+            <button type="submit" class="peligro">Cancelar</button>
+          </form>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</main>
+</body>
+</html>

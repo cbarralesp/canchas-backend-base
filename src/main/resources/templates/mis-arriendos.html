@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA: "Mis arriendos". Recibe: email (lo buscado) y arriendos (lista; no existe si aún no se buscó). -->
+<head th:replace="~{fragments :: cabeza('Mis arriendos')}"></head>
+<body>
+<header th:replace="~{fragments :: menu('mis-arriendos')}"></header>
+<main>
+  <h1>Mis arriendos</h1>
+  <p class="sub">Ingresa el email con el que arrendaste.</p>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <form class="tarjeta filtros" method="get" th:action="@{/web/mis-arriendos}">
+    <div class="campo">
+      <label for="email">Tu email</label>
+      <input type="email" id="email" name="email" th:value="${email}" required autocomplete="email">
+    </div>
+    <button type="submit">Buscar</button>
+  </form>
+
+  <th:block th:if="${arriendos != null}">
+    <p class="aviso info" th:if="${#lists.isEmpty(arriendos)}">No hay arriendos para ese email.</p>
+
+    <!-- En pantallas angostas el CSS convierte esta tabla en tarjetas usando el atributo data-etiqueta -->
+    <table th:unless="${#lists.isEmpty(arriendos)}">
+      <thead>
+        <tr><th>N°</th><th>Fecha</th><th>Horario</th><th>Cancha</th><th>Precio</th><th>Estado</th><th></th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="a : ${arriendos}">
+          <td data-etiqueta="N°" th:text="${a.id}">1</td>
+          <td data-etiqueta="Fecha" th:text="${#temporals.format(a.fecha, 'dd-MM-yyyy')}">22-11-2026</td>
+          <td data-etiqueta="Horario" th:text="${a.hora} + ':00 – ' + ${a.horaFin} + ':00'">19:00 – 20:00</td>
+          <td data-etiqueta="Cancha" th:text="${a.nombreCancha}">Cancha 1</td>
+          <td data-etiqueta="Precio" th:text="'$' + ${#numbers.formatInteger(a.precio, 1, 'POINT')}">$30.000</td>
+          <td data-etiqueta="Estado">
+            <span class="chip" th:classappend="${a.estado.name() == 'CONFIRMADO'} ? 'ok' : 'error'"
+                  th:text="${a.estado.etiqueta}">Confirmado</span>
+          </td>
+          <td class="acciones-celda">
+            <!-- los botones solo aparecen si el arriendo se puede modificar (confirmado y que aún no comienza) -->
+            <div class="acciones" th:if="${a.modificable}">
+              <a class="boton secundario" th:href="@{/web/arriendos/{id}/editar(id=${a.id}, email=${email})}">Modificar</a>
+              <form method="post" th:action="@{/web/arriendos/{id}/cancelar(id=${a.id})}"
+                    onsubmit="return confirm('¿Cancelar este arriendo? El horario quedará libre.')">
+                <input type="hidden" name="email" th:value="${email}">
+                <button type="submit" class="peligro">Cancelar</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </th:block>
+</main>
+</body>
+</html>

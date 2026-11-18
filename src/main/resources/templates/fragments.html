@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!--
+  VISTA (Thymeleaf): fragmentos reutilizables. Cada página los incluye con th:replace y así el menú,
+  el <head> y los avisos se escriben una sola vez.
+-->
+<head th:fragment="cabeza(titulo)">
+  <meta charset="UTF-8">
+  <!-- viewport: sin esta línea el celular dibuja la página "como de escritorio" y la achica (no sería responsiva) -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${titulo} + ' · Arena Sur'">Arena Sur</title>
+  <link rel="stylesheet" th:href="@{/web.css}">
+</head>
+<body>
+
+<!-- Menú del cliente. "activa" marca la sección actual. El menú hamburguesa de móvil usa solo CSS (checkbox). -->
+<header class="barra" th:fragment="menu(activa)">
+  <span class="marca">⚽ Arena Sur <small>(vista Thymeleaf)</small></span>
+  <label class="hamburguesa" for="menu-toggle" aria-label="Abrir menú">☰</label>
+  <input type="checkbox" id="menu-toggle">
+  <nav>
+    <a th:href="@{/web/disponibilidad}" th:classappend="${activa == 'disponibilidad'} ? 'activo'">Disponibilidad</a>
+    <a th:href="@{/web/mis-arriendos}" th:classappend="${activa == 'mis-arriendos'} ? 'activo'">Mis arriendos</a>
+    <a th:href="@{/web/admin/arriendos}">Administración</a>
+  </nav>
+</header>
+
+<!-- Menú de administración. -->
+<header class="barra" th:fragment="menuAdmin(activa)">
+  <span class="marca">⚽ Arena Sur · Admin</span>
+  <label class="hamburguesa" for="menu-toggle" aria-label="Abrir menú">☰</label>
+  <input type="checkbox" id="menu-toggle">
+  <nav>
+    <a th:href="@{/web/admin/arriendos}" th:classappend="${activa == 'arriendos'} ? 'activo'">Arriendos</a>
+    <a th:href="@{/web/admin/canchas}" th:classappend="${activa == 'canchas'} ? 'activo'">Canchas</a>
+    <a th:href="@{/web/disponibilidad}">Ver sitio</a>
+  </nav>
+</header>
+
+<!-- Avisos de éxito y error que llegan desde el controller (atributos "exito" y "error"). -->
+<div th:fragment="avisos">
+  <p class="aviso exito" th:if="${exito}" th:text="${exito}"></p>
+  <p class="aviso error" th:if="${error}" th:text="${error}"></p>
+</div>
+</body>
+</html>

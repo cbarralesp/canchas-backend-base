@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA: disponibilidad de canchas. Recibe del controller: fecha, fechaMinima, horas y disponibilidad. -->
+<head th:replace="~{fragments :: cabeza('Disponibilidad')}"></head>
+<body>
+<header th:replace="~{fragments :: menu('disponibilidad')}"></header>
+<main>
+  <h1>¿Cuándo quieres jugar?</h1>
+  <p class="sub">Elige una fecha y toca un horario libre para arrendar.</p>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <!-- Formulario GET: al enviarlo la URL queda /web/disponibilidad?fecha=... (se puede compartir o recargar) -->
+  <form class="tarjeta filtros" method="get" th:action="@{/web/disponibilidad}">
+    <div class="campo">
+      <label for="fecha">Fecha</label>
+      <input type="date" id="fecha" name="fecha" th:value="${fecha}" th:min="${fechaMinima}">
+    </div>
+    <button type="submit">Ver disponibilidad</button>
+  </form>
+
+  <p class="aviso info" th:if="${#lists.isEmpty(disponibilidad)}">No hay canchas en servicio.</p>
+
+  <!-- th:each recorre las canchas; por cada una se dibujan todas las horas del día (grilla responsiva) -->
+  <article class="tarjeta" th:each="item : ${disponibilidad}">
+    <h3 th:text="${item.cancha.nombre}">Cancha 1</h3>
+    <p class="meta">
+      <span th:text="${item.cancha.deporte.etiqueta}">Fútbol</span> ·
+      <span class="precio">$<span th:text="${#numbers.formatInteger(item.cancha.tarifaHora, 1, 'POINT')}">30.000</span>/hora</span>
+    </p>
+    <div class="horas">
+      <th:block th:each="h : ${horas}">
+        <!-- hora libre: enlace que lleva al formulario de arriendo con cancha, fecha y hora ya elegidas -->
+        <a class="hora" th:if="${#lists.contains(item.horasLibres, h)}"
+           th:href="@{/web/arrendar(canchaId=${item.cancha.id}, fecha=${fecha}, hora=${h})}">
+          <span th:text="${h} + ':00'">19:00</span>
+          <small>libre</small>
+        </a>
+        <!-- hora ocupada o ya pasada: no se puede elegir -->
+        <span class="hora ocupada" th:unless="${#lists.contains(item.horasLibres, h)}">
+          <span th:text="${h} + ':00'">19:00</span>
+          <small>no disponible</small>
+        </span>
+      </th:block>
+    </div>
+  </article>
+</main>
+<p class="pie">Arena Sur · Arriendo de canchas · Bloques de 1 hora, de 08:00 a 22:00</p>
+</body>
+</html>

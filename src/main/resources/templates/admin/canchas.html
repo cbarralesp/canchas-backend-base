@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<!-- VISTA (administración): lista de canchas y formulario para crear una. Recibe: canchas, deportes y form. -->
+<head th:replace="~{fragments :: cabeza('Canchas')}"></head>
+<body>
+<header th:replace="~{fragments :: menuAdmin('canchas')}"></header>
+<main>
+  <h1>Canchas</h1>
+  <p class="sub">Las canchas no se borran: se desactivan para conservar el historial de arriendos.</p>
+
+  <div th:replace="~{fragments :: avisos}"></div>
+
+  <table>
+    <thead><tr><th>Nombre</th><th>Deporte</th><th>Tarifa/hora</th><th>Estado</th><th></th></tr></thead>
+    <tbody>
+      <tr th:each="c : ${canchas}">
+        <td data-etiqueta="Nombre"><b th:text="${c.nombre}">Cancha 1</b></td>
+        <td data-etiqueta="Deporte" th:text="${c.deporte.etiqueta}">Fútbol</td>
+        <td data-etiqueta="Tarifa/hora" th:text="'$' + ${#numbers.formatInteger(c.tarifaHora, 1, 'POINT')}">$30.000</td>
+        <td data-etiqueta="Estado">
+          <span class="chip" th:classappend="${c.activa} ? 'ok' : 'error'" th:text="${c.activa} ? 'Activa' : 'Inactiva'">Activa</span>
+        </td>
+        <td class="acciones-celda">
+          <div class="acciones">
+            <a class="boton secundario" th:href="@{/web/admin/canchas/{id}/editar(id=${c.id})}">Editar</a>
+            <form method="post" th:action="@{/web/admin/canchas/{id}/estado(id=${c.id})}">
+              <input type="hidden" name="activa" th:value="${!c.activa}">
+              <button type="submit" class="secundario" th:text="${c.activa} ? 'Desactivar' : 'Activar'">Desactivar</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Nueva cancha</h2>
+  <form class="tarjeta formulario" method="post" th:action="@{/web/admin/canchas}" th:object="${form}" novalidate>
+    <div class="campo">
+      <label for="nombre">Nombre *</label>
+      <input type="text" id="nombre" th:field="*{nombre}" th:errorclass="invalido">
+      <span class="error-campo" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}"></span>
+    </div>
+    <div class="campo">
+      <label for="deporte">Deporte *</label>
+      <select id="deporte" th:field="*{deporte}" th:errorclass="invalido">
+        <option value="">Elige…</option>
+        <option th:each="d : ${deportes}" th:value="${d}" th:text="${d.etiqueta}"></option>
+      </select>
+      <span class="error-campo" th:if="${#fields.hasErrors('deporte')}" th:errors="*{deporte}"></span>
+    </div>
+    <div class="campo">
+      <label for="tarifaHora">Tarifa por hora * ($5.000 – $100.000)</label>
+      <input type="number" id="tarifaHora" th:field="*{tarifaHora}" th:errorclass="invalido" min="5000" max="100000" step="500">
+      <span class="error-campo" th:if="${#fields.hasErrors('tarifaHora')}" th:errors="*{tarifaHora}"></span>
+    </div>
+    <div class="acciones">
+      <button type="submit">Crear cancha</button>
+    </div>
+  </form>
+</main>
+</body>
+</html>
